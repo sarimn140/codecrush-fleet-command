@@ -1,0 +1,363 @@
+/* ============================================================
+   Fleet Command — Operations Console
+   Restyled to the Apple design system (see DESIGN-apple.md):
+   single Action Blue accent, SF Pro (Inter substitute) type,
+   pill CTAs, hairline cards, no chrome shadows, true-black nav.
+   Every color/radius/spacing is a token; [data-theme="light"]
+   is the default (Apple is light-dominant); the dark variant
+   approximates Apple's own product-tile-dark surfaces.
+   Toggled via #themeToggleBtn (see theme.js).
+   ============================================================ */
+
+:root{
+  /* ---- Apple color tokens (dark tile mapping — see Known Gaps) ---- */
+  --primary:#2997ff;            /* Action Blue must switch to Sky Link Blue on dark surfaces */
+  --primary-focus:#2997ff;
+  --on-primary:#ffffff;
+
+  --nav-bg:#000000;             /* global-nav — always true black, both themes */
+  --nav-ink:#ffffff;
+
+  --bg:#000000;
+  --bar-sub:rgba(37,37,39,.82); /* sub-nav-frosted, dark variant */
+  --surface:#1d1d1f;            /* product-tile-dark base */
+  --surface-2:#2a2a2c;          /* tile-2 */
+  --surface-3:#252527;          /* tile-3 */
+  --line:#3a3a3c;
+  --line-2:#333335;
+
+  --ink:#ffffff;                /* body-on-dark */
+  --ink-2:#cccccc;              /* body-muted */
+  --ink-3:#8e8e93;
+
+  /* status semantics — Apple system colors, not interactive accents */
+  --ok:#34c759;
+  --warn:#ff9f0a;
+  --danger:#ff453a;
+  --info:#64d2ff;
+  --zone:#5e5ce6;
+  --neutral:#8e8e93;
+
+  --overlay:rgba(0,0,0,.6);
+  --shadow:none;                 /* Apple: no shadow on chrome — see Elevation & Depth */
+  --grid-line:rgba(255,255,255,.03);
+
+  --radius-none:0px;
+  --radius-xs:5px;
+  --radius-sm:8px;
+  --radius-md:11px;
+  --radius-lg:18px;
+  --radius-pill:9999px;
+  --radius:8px;
+
+  --font-display:"SF Pro Display","Inter",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-text:"SF Pro Text","Inter",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+
+:root[data-theme="light"]{
+  --primary:#0066cc;             /* Action Blue on light surfaces */
+  --primary-focus:#0071e3;
+  --on-primary:#ffffff;
+
+  --bg:#f5f5f7;                  /* canvas-parchment */
+  --bar-sub:rgba(245,245,247,.8);/* sub-nav-frosted */
+  --surface:#ffffff;             /* canvas */
+  --surface-2:#fafafc;           /* surface-pearl */
+  --surface-3:#ffffff;
+  --line:#e0e0e0;                /* hairline */
+  --line-2:#f0f0f0;              /* divider-soft */
+
+  --ink:#1d1d1f;
+  --ink-2:#333333;               /* ink-muted-80 */
+  --ink-3:#7a7a7a;               /* ink-muted-48 */
+
+  --ok:#28a745;
+  --warn:#c46a00;
+  --danger:#d70015;
+  --info:#0071e3;
+  --zone:#5e5ce6;
+  --neutral:#7a7a7a;
+
+  --overlay:rgba(20,26,30,.45);
+  --shadow:none;
+  --grid-line:rgba(20,30,38,.035);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-text)}
+body{overflow:hidden;letter-spacing:-0.006em;transition:background .15s,color .15s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:active{transform:scale(.95)} /* Apple's system-wide micro-interaction */
+.hidden{display:none!important}
+
+/* ---------- shared text roles ---------- */
+.eyebrow{font:11px/1.4 var(--font-text);font-weight:600;letter-spacing:.04em;color:var(--ink-3);text-transform:uppercase}
+.mono,.clock-readout,.brand-sub,.metric span,.alert-time,.captain-meta,.request-type,
+.incoming-card b,.incoming-card small,.result-line,.last-directive,.ship-card .meta,
+.ship-status,.alert-card .top,.section-title,.sector-readout,.map-legend,.map-status,
+.maplibregl-popup-content{font-family:var(--font-mono)}
+
+/* ---------- theme toggle (button-icon-circular) ---------- */
+.theme-toggle{
+  width:34px;height:34px;display:grid;place-items:center;border:0;
+  background:rgba(255,255,255,.16);border-radius:var(--radius-pill);color:var(--nav-ink);
+}
+.theme-toggle:hover{background:rgba(255,255,255,.26)}
+.theme-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.3}
+.theme-toggle .icon-moon{fill:currentColor;stroke:none}
+:root[data-theme="light"] .theme-toggle .icon-sun{display:none}
+:root:not([data-theme="light"]) .theme-toggle .icon-moon{display:none}
+
+/* ---------- top bar — global-nav: always true black ---------- */
+.topbar{
+  height:74px;background:var(--nav-bg);
+  border-bottom:1px solid #000;display:flex;align-items:center;padding:0 20px;gap:20px;
+  position:relative;z-index:1000;color:var(--nav-ink);
+}
+.brand-block{display:flex;align-items:center;gap:12px;min-width:250px}
+.brand-mark{width:34px;height:34px;flex:0 0 auto}
+.brand-mark svg{width:100%;height:100%;display:block}
+.brand-title{font-family:var(--font-display);font-weight:600;font-size:21px;line-height:1;letter-spacing:-0.02em;color:#fff}
+.brand-sub{font-size:9.5px;color:#8e8e93;letter-spacing:.14em;margin-top:4px;text-transform:uppercase}
+
+.top-metrics{display:flex;align-items:stretch;gap:0;flex:1}
+.metric{padding:4px 17px;border-left:1px solid rgba(255,255,255,.14);min-width:84px}
+.metric span{display:block;color:#8e8e93;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.metric strong{font-family:var(--font-display);font-weight:600;font-size:19px;letter-spacing:-0.01em;color:#fff}
+.connection{font-size:10px;letter-spacing:.04em;padding:8px 12px;border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:var(--radius-pill)}
+.connection i{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:7px;background:var(--danger)}
+.connection.connected i{background:var(--ok);box-shadow:0 0 6px color-mix(in srgb,var(--ok) 60%,transparent)}
+
+.role-controls{display:flex;align-items:center;gap:10px;font-size:11px;color:#cccccc;font-family:var(--font-text)}
+.role-controls label{display:flex;align-items:center;gap:7px}
+.role-controls select{background:rgba(255,255,255,.1);border:0;color:#fff;padding:8px 26px 8px 12px;outline:none;border-radius:var(--radius-pill)}
+
+/* ---------- command strip — sub-nav-frosted ---------- */
+.command-strip{
+  height:52px;background:var(--bar-sub);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--line);display:flex;
+  justify-content:space-between;align-items:center;padding:0 20px;position:relative;z-index:900;
+}
+.command-strip strong{font-family:var(--font-display);font-size:17px;font-weight:600;margin-left:11px;letter-spacing:-0.015em}
+.command-strip .eyebrow{color:var(--ink-3)}
+.sector-readout{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--ink-3);letter-spacing:.03em}
+.sector-readout b{color:var(--ink);font-weight:500}
+.sector-readout i{height:14px;width:1px;background:var(--line);margin:0 3px}
+.strip-actions{display:flex;align-items:center;gap:9px}
+.clock-readout{font-size:10px;color:var(--ink-3);padding-right:4px}
+
+/* ---------- buttons — button-primary (pill) / button-secondary-pill ---------- */
+.primary-btn,.ghost-btn{
+  border:1px solid transparent;padding:10px 18px;font-family:var(--font-text);font-weight:400;
+  font-size:13px;letter-spacing:-0.01em;border-radius:var(--radius-pill);
+}
+.primary-btn{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.primary-btn:hover{background:var(--primary-focus);border-color:var(--primary-focus)}
+.ghost-btn{background:transparent;color:var(--primary);border-color:var(--primary)}
+.ghost-btn:hover{background:color-mix(in srgb,var(--primary) 10%,transparent)}
+.primary-btn.full{background:var(--primary);color:var(--on-primary);width:100%;margin-bottom:9px}
+
+/* ---------- workspace ---------- */
+.workspace{height:calc(100vh - 126px);display:flex;background:var(--bg)}
+.map-shell{position:relative;flex:1;min-width:0}
+.map-shell #map{height:100%;width:100%;background:var(--surface-3)}
+/* OSM only ships light tiles. In dark mode the base 'osm' raster layer is
+   re-themed via MapLibre raster-* paint properties (see applyTileTheme in
+   app.js) instead of a CSS filter, so only the tile imagery is affected —
+   markers, zones and popups stay untouched. */
+.map-shell:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:400;
+  background:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:46px 46px;
+}
+:root:not([data-theme="light"]) .map-shell:after{mix-blend-mode:screen}
+:root[data-theme="light"] .map-shell:after{mix-blend-mode:multiply}
+
+.sidebar{width:410px;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;transition:width .2s}
+.sidebar.collapsed{width:0;overflow:hidden}
+.sidebar-head{height:64px;padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--surface-2)}
+.sidebar-head h2{font-family:var(--font-display);font-size:21px;margin:3px 0 0;font-weight:600;letter-spacing:-0.02em}
+.icon-btn{border:1px solid var(--line);background:var(--surface-2);width:30px;height:30px;color:var(--ink-2);border-radius:var(--radius-pill)}
+
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--surface)}
+.tab-btn{flex:1;background:transparent;border:0;padding:13px 4px;color:var(--ink-3);font-size:11px;font-weight:400;letter-spacing:-0.01em;position:relative;font-family:var(--font-text)}
+.tab-btn.active{color:var(--ink);font-weight:600}
+.tab-btn.active:after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:2px;background:var(--primary);border-radius:2px 2px 0 0}
+.badge{background:var(--danger);color:#fff;border-radius:var(--radius-pill);padding:2px 7px;font-family:var(--font-mono);font-size:9.5px;margin-left:4px}
+.badge.neutral{background:var(--line-2);color:var(--ink-3)}
+
+.tab-panel{display:none;overflow:auto;flex:1;padding:16px}
+.tab-panel.active{display:block}
+.fleet-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.fleet-summary>div{background:var(--surface-3);border:1px solid var(--line);padding:10px 12px;border-radius:var(--radius-lg)}
+.fleet-summary span{display:block;color:var(--ink-3);font-size:9px;letter-spacing:.05em;text-transform:uppercase}
+.fleet-summary strong{font-family:var(--font-display);font-size:20px;font-weight:600;letter-spacing:-0.015em}
+
+/* search-input */
+.search{width:100%;height:40px;background:var(--surface-3);border:1px solid var(--line);color:var(--ink);padding:0 16px;outline:none;margin-bottom:10px;border-radius:var(--radius-pill);font-family:var(--font-text);font-size:13.5px}
+.search:focus{border-color:var(--primary)}
+
+/* store-utility-card, adapted for a dense list */
+.ship-card{background:var(--surface-3);border:1px solid var(--line);padding:12px 14px;margin-bottom:8px;cursor:pointer;position:relative;border-radius:var(--radius-lg);transition:border-color .12s,background .12s}
+.ship-card:hover{background:var(--surface-2)}
+.ship-card.selected{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 6%,var(--surface-3))}
+.ship-card.selected:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--primary);border-radius:0 3px 3px 0}
+.ship-card .row{display:flex;justify-content:space-between;gap:8px}
+.ship-card .name{font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:-0.015em}
+.ship-card .meta{color:var(--ink-3);font-size:10px;margin-top:5px}
+.ship-status{font-size:9.5px;padding:3px 9px;letter-spacing:.02em;border:0;border-radius:var(--radius-pill);font-weight:600}
+.status-normal{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.status-rerouting,.status-insufficient_fuel{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.status-distressed,.status-out_of_fuel,.status-stranded{color:var(--danger);background:color-mix(in srgb,var(--danger) 14%,transparent)}
+.status-stopped{color:var(--neutral);background:var(--surface-2)}
+.status-arrived{color:var(--info);background:color-mix(in srgb,var(--info) 14%,transparent)}
+
+.muted,.hint,.section-note{color:var(--ink-3);font-size:12.5px;font-family:var(--font-text)}
+.section-note{line-height:1.5;margin-bottom:12px}
+.alert-card{background:var(--surface-3);border:1px solid var(--line);border-left:3px solid var(--info);padding:12px;margin-bottom:8px;border-radius:var(--radius-lg)}
+.alert-card.sev-critical,.alert-card.sev-high{border-left-color:var(--danger)}
+.alert-card .top{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.02em;color:var(--ink-3)}
+.alert-card>div:nth-child(2){font-family:var(--font-text);font-size:13.5px;line-height:1.45;margin:7px 0}
+.alert-card button{background:transparent;border:1px solid var(--primary);color:var(--primary);padding:6px 12px;font-family:var(--font-text);font-weight:400;font-size:11px;border-radius:var(--radius-pill)}
+.alert-card.acked{opacity:.5}
+.alert-time{color:var(--ink-3)}
+
+.playback-card,.route-option,.advisor-item{background:var(--surface-3);border:1px solid var(--line);padding:14px;border-radius:var(--radius-lg)}
+.full{width:100%;margin-bottom:8px}
+.route-option{margin-top:8px}
+.route-option .route-head{display:flex;justify-content:space-between;font-family:var(--font-text);font-size:13.5px;font-weight:600}
+.route-option button{width:100%;margin-top:8px}
+
+#captainPanel textarea{width:100%;min-height:110px;background:var(--surface-3);border:1px solid var(--line);color:var(--ink);padding:12px;resize:vertical;outline:none;border-radius:var(--radius-md);font-family:var(--font-text)}
+#captainPanel button,#directiveForm button{border:1px solid var(--primary);padding:9px 14px;background:transparent;color:var(--primary);font-family:var(--font-text);font-weight:400;font-size:11px;margin:5px 5px 0 0;border-radius:var(--radius-pill)}
+.escalate-btn{background:var(--danger)!important;border-color:var(--danger)!important;color:#fff!important}
+.directive-box{background:var(--surface-2);border:1px solid var(--info);padding:14px;margin:10px 0;border-radius:var(--radius-lg)}
+.directive-box strong{font-size:12.5px;font-family:var(--font-text)}
+
+.modal{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(10px)}
+.modal-content{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);padding:24px;width:440px;max-height:84vh;overflow:auto;position:relative;border-radius:var(--radius-lg)}
+.modal-content.wide{width:530px}
+.modal-content.advisor{width:600px}
+.modal-content h2,.modal-content h3{margin:5px 0 9px;font-family:var(--font-display);font-weight:600;letter-spacing:-0.02em}
+.modal-content h2{font-size:26px}
+.modal-content h3{font-size:19px}
+.close-btn{position:absolute;right:12px;top:8px;border:0;background:transparent;color:var(--ink-3);font-size:22px;width:34px;height:34px;border-radius:var(--radius-pill)}
+.close-btn:hover{background:var(--surface-2);color:var(--ink)}
+.modal-content table{border-collapse:collapse;font-family:var(--font-text)}
+.modal-content td{padding:7px 0;border-bottom:1px solid var(--line-2)}
+.modal-content td:last-child{text-align:right;font-family:var(--font-mono)}
+.modal-content select,.modal-content input{width:100%;background:var(--surface-3);border:1px solid var(--line);color:var(--ink);padding:10px 12px;margin:4px 0;border-radius:var(--radius-pill);font-family:var(--font-text)}
+.advisor-item{border-left:3px solid var(--info);margin:8px 0}
+.advisor-item.critical{border-left-color:var(--danger)}
+.advisor-item.warning{border-left-color:var(--warn)}
+.advisor-item strong{font-size:13.5px;font-family:var(--font-text)}
+.advisor-item p{font-family:var(--font-text);font-size:12.5px;line-height:1.5;margin:6px 0;color:var(--ink-3)}
+.advisor-divider{margin:19px 0 9px}
+
+/* ---------- map chrome ---------- */
+.map-legend,.map-status{position:absolute;background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);padding:9px 12px;z-index:500;color:var(--ink-3);font-size:9.5px;border-radius:var(--radius-pill)}
+.map-legend{left:14px;bottom:14px;display:flex;gap:13px}
+.map-status{right:14px;bottom:14px}
+.map-legend span{display:flex;align-items:center;gap:5px}
+.dot{width:7px;height:7px;display:inline-block;border-radius:50%}
+.dot.normal{background:var(--ok)}
+.dot.warning{background:var(--warn)}
+.dot.danger{background:var(--danger)}
+.dot.zone{background:var(--zone);border-radius:1px}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 6px color-mix(in srgb,var(--ok) 60%,transparent)}
+.ship-icon-label{font-weight:600;font-size:9px;color:#e5edf3;text-shadow:0 1px 2px #000;white-space:nowrap}
+
+/* ---------- 3D ship + port markers (MapLibre GL) ---------- */
+.ship-marker-3d{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.ship-marker-rot{width:22px;height:22px;display:flex;align-items:center;justify-content:center;transition:transform .3s linear}
+.port-marker{width:9px;height:9px;border-radius:50%;background:#8e8e93;border:1.5px solid #e5edf3;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+/* ---------- map toolbar (draw / delete zone, reset 3D view) ---------- */
+.map-tools{position:absolute;left:14px;top:14px;z-index:500;display:flex;flex-direction:column;gap:6px}
+.map-tool-btn{padding:7px 12px;font-size:10.5px;background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.map-tool-btn.active{background:var(--primary);color:var(--on-primary)}
+
+/* ---------- MapLibre GL chrome ---------- */
+.maplibregl-popup-content{font-size:11px;font-family:var(--font-mono);background:var(--surface);color:var(--ink);border-radius:var(--radius-md);box-shadow:var(--shadow)}
+.maplibregl-popup-tip{border-top-color:var(--surface)!important;border-bottom-color:var(--surface)!important}
+.maplibregl-ctrl-group{background:var(--surface-2)!important;border:1px solid var(--line)!important}
+.maplibregl-ctrl-group button{background:transparent!important}
+.maplibregl-ctrl-group button+button{border-top:1px solid var(--line)!important}
+.maplibregl-ctrl-attrib{background:color-mix(in srgb,var(--surface) 82%,transparent)!important;color:var(--ink-3)!important}
+.maplibregl-ctrl-attrib a{color:var(--primary)!important}
+:root:not([data-theme="light"]) .maplibregl-ctrl-icon{filter:invert(.85)}
+
+/* ---------- captain workflow ---------- */
+.captain-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:3px 0 15px;border-bottom:1px solid var(--line)}
+.captain-head h3{margin:3px 0;font-family:var(--font-display);font-size:26px;font-weight:600;letter-spacing:-0.02em}
+.captain-meta{font-size:10px;color:var(--ink-3)}
+.captain-section{padding:16px 0;border-bottom:1px solid var(--line)}
+.section-title{font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;margin-bottom:10px}
+.section-title span{color:var(--primary);margin-right:8px}
+.directive-actions{display:flex;gap:8px;margin-top:11px}
+.action-btn,.wide-action{border:1px solid var(--primary);background:transparent;color:var(--primary);padding:10px 14px;font-family:var(--font-text);font-weight:400;font-size:11px;border-radius:var(--radius-pill)}
+.action-btn.accept,.wide-action.accent{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.action-btn.danger{background:transparent;border-color:var(--danger);color:var(--danger)}
+.wide-action{width:100%;margin-top:9px}
+.wide-action:hover,.action-btn:hover{filter:brightness(1.06)}
+
+.assistance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.assist-choice{border:1px solid var(--line);background:var(--surface-3);color:var(--ink-3);padding:10px 8px;text-align:left;min-height:62px;border-radius:var(--radius-md)}
+.assist-choice b{display:block;font-family:var(--font-text);font-weight:600;font-size:11.5px;color:var(--ink)}
+.assist-choice small{display:block;margin-top:5px;font-size:10px;color:var(--ink-3)}
+.assist-choice.active{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,var(--surface-3))}
+.assist-choice.active b{color:var(--primary)}
+.assist-note{width:100%;padding:12px;color:var(--ink);outline:none;margin-top:9px;border-radius:var(--radius-md);font-family:var(--font-text);background:var(--surface-3);border:1px solid var(--line)}
+.assist-note:focus,.search:focus,.modal-content select:focus,.modal-content input:focus,#captainPanel textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 16%,transparent)}
+.result-line{min-height:18px;margin-top:9px;font-size:9.5px;color:var(--ink-3)}
+.result-line.success{color:var(--ok)}
+.result-line.error{color:var(--danger)}
+.assistance-mission{margin-top:10px;padding:10px 12px;border-left:2px solid var(--info);background:var(--surface-2);color:var(--ink-3);font-size:9.5px;border-radius:0 var(--radius-md) var(--radius-md) 0}
+.last-directive{padding:10px 0;color:var(--ink-3);font-family:var(--font-text);font-size:11.5px}
+.last-directive span{color:var(--primary);margin-left:5px}
+.empty-state{text-align:center;padding:32px 15px;color:var(--ink-3)}
+.empty-state .empty-icon{font-size:30px;color:var(--primary);margin-bottom:7px}
+.empty-state strong{display:block;color:var(--ink);font-family:var(--font-display);font-size:18px;font-weight:600}
+.empty-state p{font-family:var(--font-text);font-size:12px;line-height:1.5}
+.empty-state.compact{padding:20px 10px}
+
+.request-type{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:var(--primary)}
+.request-type small{color:var(--ink-3)}
+.helper-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-top:9px}
+.helper-row select{min-width:0;background:var(--surface-3);border:1px solid var(--line);color:var(--ink);padding:9px 12px;border-radius:var(--radius-pill)}
+.helper-row button{margin:0}
+
+.incoming-assistance{padding:16px 0}
+.incoming-card{border:1px solid var(--line);background:var(--surface-3);padding:12px;margin:8px 0;border-radius:var(--radius-lg)}
+.incoming-card>div:first-child{display:flex;justify-content:space-between}
+.incoming-card b{font-size:9.5px;color:var(--primary)}
+.incoming-card small{font-size:9.5px;color:var(--ink-3)}
+.incoming-card p{margin:8px 0;color:var(--ink-3);font-family:var(--font-text);font-size:11.5px}
+.incoming-actions{display:flex;gap:6px}
+.incoming-actions .action-btn{margin:0;flex:1}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  .top-metrics .metric:nth-child(n+2){display:none}
+  .brand-block{min-width:auto}
+  .brand-sub{display:none}
+  .sidebar{width:350px}
+  .role-controls label:first-child{display:none}
+}
+@media(max-width:700px){
+  .topbar{height:auto;min-height:64px;padding:9px 12px;gap:9px;flex-wrap:wrap}
+  .top-metrics{order:3;width:100%}
+  .command-strip{height:44px}
+  .workspace{height:calc(100vh - 108px)}
+  .sidebar{position:absolute;right:0;top:108px;bottom:0;width:min(94vw,380px);z-index:800;box-shadow:-14px 0 32px rgba(0,0,0,.3)}
+  .map-shell{width:100%}
+  .map-legend{left:9px;bottom:9px}
+  .map-status{right:9px;bottom:9px}
+  .sector-readout{display:none}
+  .clock-readout{display:none}
+  .assistance-grid{grid-template-columns:repeat(2,1fr)}
+  .helper-row{grid-template-columns:1fr 1fr}
+  .helper-row select{grid-column:1/-1}
+}
